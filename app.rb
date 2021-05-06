@@ -1,17 +1,36 @@
 class App
-  def call(_env)
-    perform_request
+  FORMATS = { 'year' => '%Y', 'month' => '%m', 'day' => '%d',
+              'hour' => '%H', 'minute' => '%M', 'second' => '%S' }
+
+  def call(env)
+    @req = Rack::Request.new(env)
+    # perform_request
     [status, headers, body]
+  end
+
+  def params
+    @req.params['format'].split(',')
+  end
+
+  def params_format_check
+    (params - FORMATS.keys)
+  end
+
+  def params_format
+    params.map { |a| FORMATS[a] }.join('-')
   end
 
   private
 
-  def perform_request
-    sleep rand(2..3)
+  def status
+    return status = 404 unless @req.path == '/time'
+    return status = 400 unless params_format_check.empty?
+
+    200
   end
 
-  def status
-    200
+  def perform_request
+    sleep rand(2..3)
   end
 
   def headers
@@ -19,6 +38,8 @@ class App
   end
 
   def body
-    ["Welocome aboard!\n"]
+    # return ["Unknown time format #{params_format_check}\n"] unless params_format_check.empty?
+
+    ["Welcome\n"]
   end
 end
