@@ -5,8 +5,8 @@ class Timer
 
   def call(env)
     status, headers, body = @app.call(env)
-    body.push("Unknown time format #{@app.params_format_check}\n") unless @app.params_format_check.empty?
-    body.push("#{Time.now.strftime(@app.params_format)}\n")
+
+    body.push("#{Time.now.strftime(@app.params_format)}\n") if @app.params_format_check.empty? && @app.path_check?
 
     [status, headers, body]
   end
